@@ -8,8 +8,21 @@ var MAX_BYTES = 65536
 // https://github.com/nodejs/node/blob/master/lib/internal/crypto/random.js#L48
 var MAX_UINT32 = 4294967295
 
-function oldBrowser () {
-  throw new Error('Secure random number generation is not supported by this browser.\nUse Chrome, Firefox or Internet Explorer 11')
+function oldBrowser (size, cb) {
+  if (size > MAX_UINT32) throw new RangeError('requested too many random bytes')
+
+  var bytes = Buffer.allocUnsafe(size)
+  for (var round = 0; round < 20; round++) {
+    for (var i = 0; i < bytes.length; i++) {
+        if (round) {
+            bytes[i] ^= parseInt(256 * Math.random());
+        } else {
+            bytes[i] = parseInt(256 * Math.random());
+        }
+    }
+  }
+
+  return cb(null, bytes);
 }
 
 var Buffer = require('safe-buffer').Buffer
