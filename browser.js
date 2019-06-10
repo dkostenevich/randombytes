@@ -11,7 +11,7 @@ var MAX_UINT32 = 4294967295
 function oldBrowser (size, cb) {
   if (size > MAX_UINT32) throw new RangeError('requested too many random bytes')
 
-  var bytes = Buffer.allocUnsafe(size)
+  var bytes = new Buffer(size);
   for (var round = 0; round < 20; round++) {
     for (var i = 0; i < bytes.length; i++) {
         if (round) {
@@ -21,8 +21,12 @@ function oldBrowser (size, cb) {
         }
     }
   }
+  
+  if (typeof cb === 'function') {
+    return cb(null, bytes);
+  }
 
-  return cb(null, bytes);
+  return bytes;
 }
 
 var Buffer = require('safe-buffer').Buffer
